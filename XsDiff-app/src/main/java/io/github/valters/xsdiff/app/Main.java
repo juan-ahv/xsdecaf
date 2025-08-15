@@ -64,7 +64,7 @@ public class Main {
     }
 
     /** app bootstrap */
-    static class App {
+    public static class App {
 
         /** list of files to compare: single file name on each line */
         private static final String LISTING_FILE = "schema.lst";
@@ -72,7 +72,7 @@ public class Main {
 
         private String reportFolder = "report-" + LocalDate.now().format( DateTimeFormatter.ISO_LOCAL_DATE ) + "-" + LocalTime.now().format( MINUTESTAMP );
 
-        void run( final String[] args ) {
+        public void run( final String[] args ) {
             try {
                 if( args.length == 3 ) {
                     reportFolder = args[2];

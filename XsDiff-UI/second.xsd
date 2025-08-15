@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/customer"
+           xmlns:tns="http://example.com/customer"
+           elementFormDefault="qualified">
+
+    <!-- Customer schema version 2.0 - Updated with changes -->
+    <xs:element name="customer" type="tns:CustomerType"/>
+
+    <xs:complexType name="CustomerType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:long"/>  <!-- Changed from int to long -->
+            <xs:element name="firstName" type="xs:string"/>  <!-- Split name into firstName and lastName -->
+            <xs:element name="lastName" type="xs:string"/>   <!-- New field -->
+            <xs:element name="email" type="tns:EmailType"/>  <!-- Changed to custom email type -->
+            <xs:element name="address" type="tns:AddressType"/>
+            <xs:element name="phone" type="xs:string" minOccurs="0"/>
+            <xs:element name="dateOfBirth" type="xs:date" minOccurs="0"/>  <!-- New field -->
+        </xs:sequence>
+        <xs:attribute name="status" type="tns:StatusType" default="active"/>
+        <xs:attribute name="membershipLevel" type="tns:MembershipType" minOccurs="0"/>  <!-- New attribute -->
+    </xs:complexType>
+
+    <xs:complexType name="AddressType">
+        <xs:sequence>
+            <xs:element name="street" type="xs:string"/>
+            <xs:element name="city" type="xs:string"/>
+            <xs:element name="state" type="xs:string"/>
+            <xs:element name="zipCode" type="xs:string"/>
+            <xs:element name="country" type="xs:string" default="USA"/>  <!-- New field with default -->
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="StatusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="active"/>
+            <xs:enumeration value="inactive"/>
+            <xs:enumeration value="suspended"/>  <!-- New enumeration value -->
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- New email type with validation -->
+    <xs:simpleType name="EmailType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[^@]+@[^@]+\.[^@]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- New membership type -->
+    <xs:simpleType name="MembershipType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="bronze"/>
+            <xs:enumeration value="silver"/>
+            <xs:enumeration value="gold"/>
+            <xs:enumeration value="platinum"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Product definition - modified -->
+    <xs:element name="product" type="tns:ProductType"/>
+
+    <xs:complexType name="ProductType">
+        <xs:sequence>
+            <xs:element name="productId" type="xs:string"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>  <!-- New field -->
+            <xs:element name="price" type="xs:decimal"/>
+            <xs:element name="category" type="tns:CategoryType"/>  <!-- New field -->
+        </xs:sequence>
+        <xs:attribute name="discontinued" type="xs:boolean" default="false"/>  <!-- New attribute -->
+    </xs:complexType>
+
+    <!-- New category type -->
+    <xs:simpleType name="CategoryType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="electronics"/>
+            <xs:enumeration value="clothing"/>
+            <xs:enumeration value="books"/>
+            <xs:enumeration value="home"/>
+            <xs:enumeration value="sports"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- New order element -->
+    <xs:element name="order" type="tns:OrderType"/>
+
+    <xs:complexType name="OrderType">
+        <xs:sequence>
+            <xs:element name="orderId" type="xs:string"/>
+            <xs:element name="customerId" type="xs:long"/>
+            <xs:element name="orderDate" type="xs:dateTime"/>
+            <xs:element name="items" type="tns:OrderItemsType"/>
+            <xs:element name="totalAmount" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OrderItemsType">
+        <xs:sequence>
+            <xs:element name="item" type="tns:OrderItemType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OrderItemType">
+        <xs:sequence>
+            <xs:element name="productId" type="xs:string"/>
+            <xs:element name="quantity" type="xs:positiveInteger"/>
+            <xs:element name="unitPrice" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

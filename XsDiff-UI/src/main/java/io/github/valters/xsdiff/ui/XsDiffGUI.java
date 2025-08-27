@@ -78,40 +78,7 @@ public class XsDiffGUI extends JFrame {
         // Set initial state
         updateCompareButtonState();
         
-        // Additional icon setting for Linux after window is visible
-        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            // Use WindowListener for more reliable icon setting on Linux
-            addWindowListener(new java.awt.event.WindowAdapter() {
-                @Override
-                public void windowOpened(java.awt.event.WindowEvent e) {
-                    // Set icon after window is opened
-                    SwingUtilities.invokeLater(() -> {
-                        try {
-                            java.net.URL iconUrl = getClass().getResource("/icon.png");
-                            if (iconUrl != null) {
-                                ImageIcon icon = new ImageIcon(iconUrl);
-                                Image image = icon.getImage();
-                                
-                                // Create multiple icon sizes
-                                java.util.List<Image> iconList = new java.util.ArrayList<>();
-                                iconList.add(image);
-                                iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-                                iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
-                                iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
-                                iconList.add(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-                                iconList.add(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
-                                
-                                setIconImages(iconList);
-                                setIconImage(image);
-                                System.out.println("Linux window opened icon refresh completed");
-                            }
-                        } catch (Exception ex) {
-                            System.err.println("Linux window opened icon refresh failed: " + ex.getMessage());
-                        }
-                    });
-                }
-            });
-        }
+        // No extra listeners/timers: icon is set once during startup for all OSes
     }
     
     /**
@@ -122,8 +89,6 @@ public class XsDiffGUI extends JFrame {
             // Load icon from resources
             java.net.URL iconUrl = getClass().getResource("/icon.png");
             if (iconUrl != null) {
-                System.out.println("Icon loaded successfully from: " + iconUrl);
-                System.out.println("Operating System: " + System.getProperty("os.name"));
                 ImageIcon icon = new ImageIcon(iconUrl);
                 Image image = icon.getImage();
                 
@@ -144,22 +109,13 @@ public class XsDiffGUI extends JFrame {
                 // Set multiple icon sizes for better platform integration
                 setIconImages(iconList);
                 
-                // Linux-specific icon setting
-                if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-                    System.out.println("Applying Linux-specific icon optimizations...");
-                    try {
-                        // Set icon images for Linux
-                        setIconImages(iconList);
-                        
-                        // Ensure the icon is properly loaded
-                        java.awt.Toolkit.getDefaultToolkit().setDynamicLayout(false);
-                        
-                        System.out.println("Linux icon optimizations completed");
-                        
-                    } catch (Exception linuxEx) {
-                        // Log but don't fail
-                        System.err.println("Linux-specific icon setting failed: " + linuxEx.getMessage());
-                    }
+                // Also set taskbar/dock icon when supported (Java 9+)
+                try {
+                    Class<?> taskbarClass = Class.forName("java.awt.Taskbar");
+                    Object taskbar = taskbarClass.getMethod("getTaskbar").invoke(null);
+                    taskbarClass.getMethod("setIconImage", Image.class).invoke(taskbar, image);
+                } catch (Throwable ignore) {
+                    // Ignore if Taskbar API not available
                 }
             }
         } catch (Exception e) {

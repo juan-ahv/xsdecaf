@@ -49,6 +49,9 @@ public class XsDiffGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         
+        // Set application icon
+        setApplicationIcon();
+        
         // Create main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -74,6 +77,40 @@ public class XsDiffGUI extends JFrame {
         
         // Set initial state
         updateCompareButtonState();
+    }
+    
+    /**
+     * Sets the application icon from the resources
+     */
+    private void setApplicationIcon() {
+        try {
+            // Load icon from resources
+            java.net.URL iconUrl = getClass().getResource("/icon.png");
+            if (iconUrl != null) {
+                ImageIcon icon = new ImageIcon(iconUrl);
+                Image image = icon.getImage();
+                
+                // Set the main window icon
+                setIconImage(image);
+                
+                // For Windows, also set taskbar icon
+                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                    // Create multiple icon sizes for better Windows integration
+                    java.util.List<Image> iconList = new java.util.ArrayList<>();
+                    iconList.add(image);
+                    
+                    // Add scaled versions for different contexts
+                    iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                    iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                    iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
+                    
+                    setIconImages(iconList);
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't fail if icon can't be loaded
+            System.err.println("Could not load application icon: " + e.getMessage());
+        }
     }
     
     private JPanel createInputPanel() {

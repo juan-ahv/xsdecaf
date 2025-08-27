@@ -87,24 +87,54 @@ public class XsDiffGUI extends JFrame {
             // Load icon from resources
             java.net.URL iconUrl = getClass().getResource("/icon.png");
             if (iconUrl != null) {
+                System.out.println("Icon loaded successfully from: " + iconUrl);
+                System.out.println("Operating System: " + System.getProperty("os.name"));
                 ImageIcon icon = new ImageIcon(iconUrl);
                 Image image = icon.getImage();
+                
+                // Create multiple icon sizes for better cross-platform integration
+                java.util.List<Image> iconList = new java.util.ArrayList<>();
+                iconList.add(image);
+                
+                // Add scaled versions for different contexts
+                iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
+                iconList.add(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+                iconList.add(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
                 
                 // Set the main window icon
                 setIconImage(image);
                 
-                // For Windows, also set taskbar icon
-                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                    // Create multiple icon sizes for better Windows integration
-                    java.util.List<Image> iconList = new java.util.ArrayList<>();
-                    iconList.add(image);
-                    
-                    // Add scaled versions for different contexts
-                    iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-                    iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
-                    iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
-                    
-                    setIconImages(iconList);
+                // Set multiple icon sizes for better platform integration
+                setIconImages(iconList);
+                
+                // Linux-specific icon setting
+                if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                    System.out.println("Applying Linux-specific icon optimizations...");
+                    try {
+                        // Force icon refresh on Linux
+                        // This helps with window manager integration
+                        setIconImages(iconList);
+                        
+                        // Ensure the icon is properly loaded
+                        java.awt.Toolkit.getDefaultToolkit().setDynamicLayout(false);
+                        
+                        // Try to force a repaint to ensure icon is displayed
+                        SwingUtilities.invokeLater(() -> {
+                            try {
+                                setIconImages(iconList);
+                                repaint();
+                                System.out.println("Linux icon refresh completed");
+                            } catch (Exception ex) {
+                                // Ignore repaint errors
+                            }
+                        });
+                        
+                    } catch (Exception linuxEx) {
+                        // Log but don't fail
+                        System.err.println("Linux-specific icon setting failed: " + linuxEx.getMessage());
+                    }
                 }
             }
         } catch (Exception e) {

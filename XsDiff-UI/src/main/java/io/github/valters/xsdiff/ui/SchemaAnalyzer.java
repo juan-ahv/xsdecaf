@@ -93,10 +93,25 @@ public class SchemaAnalyzer {
         Document doc = docBuilder.parse(xsdFile);
         Map<String, ComplexTypeInfo> complexTypes = new LinkedHashMap<>();
         
-        // Find all complexType elements
+        // Find all complexType elements with both xs: and xsd: prefixes
         NodeList complexTypeNodes = doc.getElementsByTagName("xs:complexType");
+        NodeList complexTypeNodesXsd = doc.getElementsByTagName("xsd:complexType");
+        
+        // Process xs:complexType elements
         for (int i = 0; i < complexTypeNodes.getLength(); i++) {
             Element complexTypeElement = (Element) complexTypeNodes.item(i);
+            String typeName = complexTypeElement.getAttribute("name");
+            
+            if (typeName != null && !typeName.isEmpty()) {
+                ComplexTypeInfo typeInfo = new ComplexTypeInfo(typeName);
+                analyzeComplexType(complexTypeElement, typeInfo);
+                complexTypes.put(typeName, typeInfo);
+            }
+        }
+        
+        // Process xsd:complexType elements
+        for (int i = 0; i < complexTypeNodesXsd.getLength(); i++) {
+            Element complexTypeElement = (Element) complexTypeNodesXsd.item(i);
             String typeName = complexTypeElement.getAttribute("name");
             
             if (typeName != null && !typeName.isEmpty()) {
@@ -113,8 +128,11 @@ public class SchemaAnalyzer {
      * Analyze a complex type element and extract its elements and attributes
      */
     private void analyzeComplexType(Element complexTypeElement, ComplexTypeInfo typeInfo) {
-        // Find all element declarations within this complex type
+        // Find all element declarations within this complex type (both xs: and xsd: prefixes)
         NodeList elements = complexTypeElement.getElementsByTagName("xs:element");
+        NodeList elementsXsd = complexTypeElement.getElementsByTagName("xsd:element");
+        
+        // Process xs:element elements
         for (int i = 0; i < elements.getLength(); i++) {
             Element element = (Element) elements.item(i);
             String elementName = element.getAttribute("name");
@@ -138,10 +156,57 @@ public class SchemaAnalyzer {
             }
         }
         
-        // Find all attribute declarations within this complex type
+        // Process xsd:element elements
+        for (int i = 0; i < elementsXsd.getLength(); i++) {
+            Element element = (Element) elementsXsd.item(i);
+            String elementName = element.getAttribute("name");
+            String elementType = element.getAttribute("type");
+            
+            if (elementName != null && !elementName.isEmpty()) {
+                String elementDesc = elementName;
+                if (elementType != null && !elementType.isEmpty()) {
+                    elementDesc += " (" + elementType + ")";
+                }
+                
+                // Add minOccurs/maxOccurs info if present
+                String minOccurs = element.getAttribute("minOccurs");
+                String maxOccurs = element.getAttribute("maxOccurs");
+                if (!minOccurs.isEmpty() || !maxOccurs.isEmpty()) {
+                    elementDesc += " [" + (minOccurs.isEmpty() ? "1" : minOccurs) + 
+                                 ".." + (maxOccurs.isEmpty() ? "1" : maxOccurs) + "]";
+                }
+                
+                typeInfo.addElement(elementDesc);
+            }
+        }
+        
+        // Find all attribute declarations within this complex type (both xs: and xsd: prefixes)
         NodeList attributes = complexTypeElement.getElementsByTagName("xs:attribute");
+        NodeList attributesXsd = complexTypeElement.getElementsByTagName("xsd:attribute");
+        
+        // Process xs:attribute elements
         for (int i = 0; i < attributes.getLength(); i++) {
             Element attribute = (Element) attributes.item(i);
+            String attrName = attribute.getAttribute("name");
+            String attrType = attribute.getAttribute("type");
+            String defaultValue = attribute.getAttribute("default");
+            
+            if (attrName != null && !attrName.isEmpty()) {
+                String attrDesc = "@" + attrName;
+                if (attrType != null && !attrType.isEmpty()) {
+                    attrDesc += " (" + attrType + ")";
+                }
+                if (defaultValue != null && !defaultValue.isEmpty()) {
+                    attrDesc += " default='" + defaultValue + "'";
+                }
+                
+                typeInfo.addAttribute(attrDesc);
+            }
+        }
+        
+        // Process xsd:attribute elements
+        for (int i = 0; i < attributesXsd.getLength(); i++) {
+            Element attribute = (Element) attributesXsd.item(i);
             String attrName = attribute.getAttribute("name");
             String attrType = attribute.getAttribute("type");
             String defaultValue = attribute.getAttribute("default");

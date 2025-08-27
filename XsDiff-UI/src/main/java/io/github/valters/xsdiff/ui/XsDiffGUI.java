@@ -77,6 +77,70 @@ public class XsDiffGUI extends JFrame {
         
         // Set initial state
         updateCompareButtonState();
+        
+        // Additional icon setting for Linux after window is visible
+        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    // Force icon refresh after window is visible
+                    java.net.URL iconUrl = getClass().getResource("/icon.png");
+                    if (iconUrl != null) {
+                        ImageIcon icon = new ImageIcon(iconUrl);
+                        Image image = icon.getImage();
+                        
+                        // Create multiple icon sizes
+                        java.util.List<Image> iconList = new java.util.ArrayList<>();
+                        iconList.add(image);
+                        iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                        iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                        iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
+                        iconList.add(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+                        iconList.add(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
+                        
+                        setIconImages(iconList);
+                        setIconImage(image);
+                        System.out.println("Linux post-visibility icon refresh completed");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Linux post-visibility icon refresh failed: " + e.getMessage());
+                }
+            });
+            
+            // Add window focus listener for Linux icon refresh
+            addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+                @Override
+                public void windowGainedFocus(java.awt.event.WindowEvent e) {
+                    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                        try {
+                            java.net.URL iconUrl = getClass().getResource("/icon.png");
+                            if (iconUrl != null) {
+                                ImageIcon icon = new ImageIcon(iconUrl);
+                                Image image = icon.getImage();
+                                
+                                java.util.List<Image> iconList = new java.util.ArrayList<>();
+                                iconList.add(image);
+                                iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                                iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                                iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
+                                iconList.add(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+                                iconList.add(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
+                                
+                                setIconImages(iconList);
+                                setIconImage(image);
+                                System.out.println("Linux focus-gained icon refresh completed");
+                            }
+                        } catch (Exception ex) {
+                            System.err.println("Linux focus-gained icon refresh failed: " + ex.getMessage());
+                        }
+                    }
+                }
+                
+                @Override
+                public void windowLostFocus(java.awt.event.WindowEvent e) {
+                    // Not needed for icon display
+                }
+            });
+        }
     }
     
     /**
@@ -120,14 +184,63 @@ public class XsDiffGUI extends JFrame {
                         // Ensure the icon is properly loaded
                         java.awt.Toolkit.getDefaultToolkit().setDynamicLayout(false);
                         
-                        // Try to force a repaint to ensure icon is displayed
+                        // Multiple attempts to set icon on Linux
                         SwingUtilities.invokeLater(() -> {
                             try {
+                                // First attempt - immediate
                                 setIconImages(iconList);
-                                repaint();
-                                System.out.println("Linux icon refresh completed");
+                                setIconImage(image);
+                                System.out.println("Linux icon refresh attempt 1 completed");
+                                
+                                // Second attempt after a short delay
+                                Timer timer1 = new Timer(100, e -> {
+                                    try {
+                                        setIconImages(iconList);
+                                        setIconImage(image);
+                                        System.out.println("Linux icon refresh attempt 2 completed");
+                                    } catch (Exception ex) {
+                                        System.err.println("Linux icon refresh attempt 2 failed: " + ex.getMessage());
+                                    }
+                                });
+                                timer1.setRepeats(false);
+                                timer1.start();
+                                
+                                // Third attempt after window is fully visible
+                                Timer timer2 = new Timer(500, e -> {
+                                    try {
+                                        setIconImages(iconList);
+                                        setIconImage(image);
+                                        repaint();
+                                        System.out.println("Linux icon refresh attempt 3 completed");
+                                    } catch (Exception ex) {
+                                        System.err.println("Linux icon refresh attempt 3 failed: " + ex.getMessage());
+                                    }
+                                });
+                                timer2.setRepeats(false);
+                                timer2.start();
+                                
+                                // Fourth attempt - try alternative methods
+                                Timer timer3 = new Timer(750, e -> {
+                                    try {
+                                        // Try setting icon in different ways
+                                        setIconImages(iconList);
+                                        setIconImage(image);
+                                        
+                                        // Force a window state change to trigger icon refresh
+                                        int state = getExtendedState();
+                                        setExtendedState(JFrame.ICONIFIED);
+                                        setExtendedState(state);
+                                        
+                                        System.out.println("Linux icon refresh attempt 4 (state change) completed");
+                                    } catch (Exception ex) {
+                                        System.err.println("Linux icon refresh attempt 4 failed: " + ex.getMessage());
+                                    }
+                                });
+                                timer3.setRepeats(false);
+                                timer3.start();
+                                
                             } catch (Exception ex) {
-                                // Ignore repaint errors
+                                System.err.println("Linux icon refresh attempt 1 failed: " + ex.getMessage());
                             }
                         });
                         
@@ -404,8 +517,44 @@ public class XsDiffGUI extends JFrame {
     }
     
     public static void main(String[] args) {
+        // Set system properties for better Linux icon support
+        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+            System.setProperty("awt.useSystemAAFontSettings", "on");
+            System.setProperty("swing.aatext", "true");
+        }
+        
         SwingUtilities.invokeLater(() -> {
-            new XsDiffGUI().setVisible(true);
+            XsDiffGUI gui = new XsDiffGUI();
+            gui.setVisible(true);
+            
+            // Additional Linux icon refresh after main window is visible
+            if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+                Timer linuxIconTimer = new Timer(1000, e -> {
+                    try {
+                        java.net.URL iconUrl = gui.getClass().getResource("/icon.png");
+                        if (iconUrl != null) {
+                            ImageIcon icon = new ImageIcon(iconUrl);
+                            Image image = icon.getImage();
+                            
+                            java.util.List<Image> iconList = new java.util.ArrayList<>();
+                            iconList.add(image);
+                            iconList.add(image.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+                            iconList.add(image.getScaledInstance(32, 32, Image.SCALE_SMOOTH));
+                            iconList.add(image.getScaledInstance(48, 48, Image.SCALE_SMOOTH));
+                            iconList.add(image.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+                            iconList.add(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH));
+                            
+                            gui.setIconImages(iconList);
+                            gui.setIconImage(image);
+                            System.out.println("Linux main thread icon refresh completed");
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Linux main thread icon refresh failed: " + ex.getMessage());
+                    }
+                });
+                linuxIconTimer.setRepeats(false);
+                linuxIconTimer.start();
+            }
         });
     }
 }

@@ -34,27 +34,37 @@ public class SchemaAnalyzer {
         private final String name;
         private final Set<String> elements;
         private final Set<String> attributes;
+        private final Set<String> annotations;
+        private final Set<String> appinfos;
         
         public ComplexTypeInfo(String name) {
             this.name = name;
             this.elements = new LinkedHashSet<>();
             this.attributes = new LinkedHashSet<>();
+            this.annotations = new LinkedHashSet<>();
+            this.appinfos = new LinkedHashSet<>();
         }
         
         public String getName() { return name; }
         public Set<String> getElements() { return elements; }
         public Set<String> getAttributes() { return attributes; }
+        public Set<String> getAnnotations() { return annotations; }
+        public Set<String> getAppinfos() { return appinfos; }
         
         public void addElement(String element) { elements.add(element); }
         public void addAttribute(String attribute) { attributes.add(attribute); }
+        public void addAnnotation(String annotation) { annotations.add(annotation); }
+        public void addAppinfo(String appinfo) { appinfos.add(appinfo); }
         
         /**
-         * Get all members (elements and attributes) as a formatted string
+         * Get all members (elements, attributes, annotations, and appinfos) as a formatted string
          */
         public String getAllMembers() {
             List<String> all = new ArrayList<>();
             elements.forEach(e -> all.add("element: " + e));
             attributes.forEach(a -> all.add("attribute: " + a));
+            annotations.forEach(a -> all.add("annotation: " + a));
+            appinfos.forEach(a -> all.add("appinfo: " + a));
             return String.join(", ", all);
         }
     }
@@ -223,6 +233,274 @@ public class SchemaAnalyzer {
                 typeInfo.addAttribute(attrDesc);
             }
         }
+        
+        // Find all annotation elements within this complex type (both xs: and xsd: prefixes)
+        NodeList annotations = complexTypeElement.getElementsByTagName("xs:annotation");
+        NodeList annotationsXsd = complexTypeElement.getElementsByTagName("xsd:annotation");
+        
+        // Process xs:annotation elements
+        for (int i = 0; i < annotations.getLength(); i++) {
+            Element annotation = (Element) annotations.item(i);
+            typeInfo.addAnnotation("annotation");
+            
+            // Look for appinfo within annotation
+            NodeList appinfos = annotation.getElementsByTagName("xs:appinfo");
+            for (int j = 0; j < appinfos.getLength(); j++) {
+                Element appinfo = (Element) appinfos.item(j);
+                String source = appinfo.getAttribute("source");
+                String appinfoDesc = "appinfo";
+                if (source != null && !source.isEmpty()) {
+                    appinfoDesc += " source='" + source + "'";
+                }
+                typeInfo.addAppinfo(appinfoDesc);
+            }
+        }
+        
+        // Process xsd:annotation elements
+        for (int i = 0; i < annotationsXsd.getLength(); i++) {
+            Element annotation = (Element) annotationsXsd.item(i);
+            typeInfo.addAnnotation("annotation");
+            
+            // Look for appinfo within annotation
+            NodeList appinfos = annotation.getElementsByTagName("xsd:appinfo");
+            for (int j = 0; j < appinfos.getLength(); j++) {
+                Element appinfo = (Element) appinfos.item(j);
+                String source = appinfo.getAttribute("source");
+                String appinfoDesc = "appinfo";
+                if (source != null && !source.isEmpty()) {
+                    appinfoDesc += " source='" + source + "'";
+                }
+                typeInfo.addAppinfo(appinfoDesc);
+            }
+        }
+        
+        // Also look for appinfo elements directly within complex type (both xs: and xsd: prefixes)
+        NodeList appinfos = complexTypeElement.getElementsByTagName("xs:appinfo");
+        NodeList appinfosXsd = complexTypeElement.getElementsByTagName("xsd:appinfo");
+        
+        // Process xs:appinfo elements
+        for (int i = 0; i < appinfos.getLength(); i++) {
+            Element appinfo = (Element) appinfos.item(i);
+            String source = appinfo.getAttribute("source");
+            String appinfoDesc = "appinfo";
+            if (source != null && !source.isEmpty()) {
+                appinfoDesc += " source='" + source + "'";
+            }
+            typeInfo.addAppinfo(appinfoDesc);
+        }
+        
+        // Process xsd:appinfo elements
+        for (int i = 0; i < appinfosXsd.getLength(); i++) {
+            Element appinfo = (Element) appinfosXsd.item(i);
+            String source = appinfo.getAttribute("source");
+            String appinfoDesc = "appinfo";
+            if (source != null && !source.isEmpty()) {
+                appinfoDesc += " source='" + source + "'";
+            }
+            typeInfo.addAppinfo(appinfoDesc);
+        }
+        
+        // Find all minLength elements within this complex type (both xs: and xsd: prefixes)
+        NodeList minLengths = complexTypeElement.getElementsByTagName("xs:minLength");
+        NodeList minLengthsXsd = complexTypeElement.getElementsByTagName("xsd:minLength");
+        
+        // Process xs:minLength elements
+        for (int i = 0; i < minLengths.getLength(); i++) {
+            Element minLength = (Element) minLengths.item(i);
+            String value = minLength.getAttribute("value");
+            String minLengthDesc = "minLength";
+            if (value != null && !value.isEmpty()) {
+                minLengthDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(minLengthDesc);
+        }
+        
+        // Process xsd:minLength elements
+        for (int i = 0; i < minLengthsXsd.getLength(); i++) {
+            Element minLength = (Element) minLengthsXsd.item(i);
+            String value = minLength.getAttribute("value");
+            String minLengthDesc = "minLength";
+            if (value != null && !value.isEmpty()) {
+                minLengthDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(minLengthDesc);
+        }
+        
+        // Find all maxLength elements within this complex type (both xs: and xsd: prefixes)
+        NodeList maxLengths = complexTypeElement.getElementsByTagName("xs:maxLength");
+        NodeList maxLengthsXsd = complexTypeElement.getElementsByTagName("xsd:maxLength");
+        
+        // Process xs:maxLength elements
+        for (int i = 0; i < maxLengths.getLength(); i++) {
+            Element maxLength = (Element) maxLengths.item(i);
+            String value = maxLength.getAttribute("value");
+            String maxLengthDesc = "maxLength";
+            if (value != null && !value.isEmpty()) {
+                maxLengthDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(maxLengthDesc);
+        }
+        
+        // Process xsd:maxLength elements
+        for (int i = 0; i < maxLengthsXsd.getLength(); i++) {
+            Element maxLength = (Element) maxLengthsXsd.item(i);
+            String value = maxLength.getAttribute("value");
+            String maxLengthDesc = "maxLength";
+            if (value != null && !value.isEmpty()) {
+                maxLengthDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(maxLengthDesc);
+        }
+        
+        // Find all restriction elements within this complex type (both xs: and xsd: prefixes)
+        NodeList restrictions = complexTypeElement.getElementsByTagName("xs:restriction");
+        NodeList restrictionsXsd = complexTypeElement.getElementsByTagName("xsd:restriction");
+        
+        // Process xs:restriction elements
+        for (int i = 0; i < restrictions.getLength(); i++) {
+            Element restriction = (Element) restrictions.item(i);
+            String base = restriction.getAttribute("base");
+            String restrictionDesc = "restriction";
+            if (base != null && !base.isEmpty()) {
+                restrictionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(restrictionDesc);
+        }
+        
+        // Process xsd:restriction elements
+        for (int i = 0; i < restrictionsXsd.getLength(); i++) {
+            Element restriction = (Element) restrictionsXsd.item(i);
+            String base = restriction.getAttribute("base");
+            String restrictionDesc = "restriction";
+            if (base != null && !base.isEmpty()) {
+                restrictionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(restrictionDesc);
+        }
+        
+        // Find all documentation elements within this complex type (both xs: and xsd: prefixes)
+        NodeList documentations = complexTypeElement.getElementsByTagName("xs:documentation");
+        NodeList documentationsXsd = complexTypeElement.getElementsByTagName("xsd:documentation");
+        
+        // Process xs:documentation elements
+        for (int i = 0; i < documentations.getLength(); i++) {
+            Element documentation = (Element) documentations.item(i);
+            String source = documentation.getAttribute("source");
+            String documentationDesc = "documentation";
+            if (source != null && !source.isEmpty()) {
+                documentationDesc += " source='" + source + "'";
+            }
+            typeInfo.addAnnotation(documentationDesc);
+        }
+        
+        // Process xsd:documentation elements
+        for (int i = 0; i < documentationsXsd.getLength(); i++) {
+            Element documentation = (Element) documentationsXsd.item(i);
+            String source = documentation.getAttribute("source");
+            String documentationDesc = "documentation";
+            if (source != null && !source.isEmpty()) {
+                documentationDesc += " source='" + source + "'";
+            }
+            typeInfo.addAnnotation(documentationDesc);
+        }
+        
+        // Find all enumeration elements within this complex type (both xs: and xsd: prefixes)
+        NodeList enumerations = complexTypeElement.getElementsByTagName("xs:enumeration");
+        NodeList enumerationsXsd = complexTypeElement.getElementsByTagName("xsd:enumeration");
+        
+        // Process xs:enumeration elements
+        for (int i = 0; i < enumerations.getLength(); i++) {
+            Element enumeration = (Element) enumerations.item(i);
+            String value = enumeration.getAttribute("value");
+            String enumerationDesc = "enumeration";
+            if (value != null && !value.isEmpty()) {
+                enumerationDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(enumerationDesc);
+        }
+        
+        // Process xsd:enumeration elements
+        for (int i = 0; i < enumerationsXsd.getLength(); i++) {
+            Element enumeration = (Element) enumerationsXsd.item(i);
+            String value = enumeration.getAttribute("value");
+            String enumerationDesc = "enumeration";
+            if (value != null && !value.isEmpty()) {
+                enumerationDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(enumerationDesc);
+        }
+        
+        // Find all simpleContent elements within this complex type (both xs: and xsd: prefixes)
+        NodeList simpleContents = complexTypeElement.getElementsByTagName("xs:simpleContent");
+        NodeList simpleContentsXsd = complexTypeElement.getElementsByTagName("xsd:simpleContent");
+        
+        // Process xs:simpleContent elements
+        for (int i = 0; i < simpleContents.getLength(); i++) {
+            Element simpleContent = (Element) simpleContents.item(i);
+            typeInfo.addElement("simpleContent");
+        }
+        
+        // Process xsd:simpleContent elements
+        for (int i = 0; i < simpleContentsXsd.getLength(); i++) {
+            Element simpleContent = (Element) simpleContentsXsd.item(i);
+            typeInfo.addElement("simpleContent");
+        }
+        
+        // Find all sequence elements within this complex type (both xs: and xsd: prefixes)
+        NodeList sequences = complexTypeElement.getElementsByTagName("xs:sequence");
+        NodeList sequencesXsd = complexTypeElement.getElementsByTagName("xsd:sequence");
+        
+        // Process xs:sequence elements
+        for (int i = 0; i < sequences.getLength(); i++) {
+            Element sequence = (Element) sequences.item(i);
+            String minOccurs = sequence.getAttribute("minOccurs");
+            String maxOccurs = sequence.getAttribute("maxOccurs");
+            String sequenceDesc = "sequence";
+            if (!minOccurs.isEmpty() || !maxOccurs.isEmpty()) {
+                sequenceDesc += " [" + (minOccurs.isEmpty() ? "1" : minOccurs) + 
+                             ".." + (maxOccurs.isEmpty() ? "1" : maxOccurs) + "]";
+            }
+            typeInfo.addElement(sequenceDesc);
+        }
+        
+        // Process xsd:sequence elements
+        for (int i = 0; i < sequencesXsd.getLength(); i++) {
+            Element sequence = (Element) sequencesXsd.item(i);
+            String minOccurs = sequence.getAttribute("minOccurs");
+            String maxOccurs = sequence.getAttribute("maxOccurs");
+            String sequenceDesc = "sequence";
+            if (!minOccurs.isEmpty() || !maxOccurs.isEmpty()) {
+                sequenceDesc += " [" + (minOccurs.isEmpty() ? "1" : minOccurs) + 
+                             ".." + (maxOccurs.isEmpty() ? "1" : maxOccurs) + "]";
+            }
+            typeInfo.addElement(sequenceDesc);
+        }
+        
+        // Find all extension elements within this complex type (both xs: and xsd: prefixes)
+        NodeList extensions = complexTypeElement.getElementsByTagName("xs:extension");
+        NodeList extensionsXsd = complexTypeElement.getElementsByTagName("xsd:extension");
+        
+        // Process xs:extension elements
+        for (int i = 0; i < extensions.getLength(); i++) {
+            Element extension = (Element) extensions.item(i);
+            String base = extension.getAttribute("base");
+            String extensionDesc = "extension";
+            if (base != null && !base.isEmpty()) {
+                extensionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(extensionDesc);
+        }
+        
+        // Process xsd:extension elements
+        for (int i = 0; i < extensionsXsd.getLength(); i++) {
+            Element extension = (Element) extensionsXsd.item(i);
+            String base = extension.getAttribute("base");
+            String extensionDesc = "extension";
+            if (base != null && !base.isEmpty()) {
+                extensionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(extensionDesc);
+        }
     }
     
     /**
@@ -255,10 +533,14 @@ public class SchemaAnalyzer {
                 Set<String> members1 = new LinkedHashSet<>();
                 members1.addAll(type1.getElements());
                 members1.addAll(type1.getAttributes());
+                members1.addAll(type1.getAnnotations());
+                members1.addAll(type1.getAppinfos());
                 
                 Set<String> members2 = new LinkedHashSet<>();
                 members2.addAll(type2.getElements());
                 members2.addAll(type2.getAttributes());
+                members2.addAll(type2.getAnnotations());
+                members2.addAll(type2.getAppinfos());
                 
                 // Find members only in first
                 Set<String> onlyIn1 = new LinkedHashSet<>(members1);

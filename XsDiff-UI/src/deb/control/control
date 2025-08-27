@@ -1,0 +1,8 @@
+Package: xsdecaf
+Version: 1.2.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: xsdecaf <noreply@example.com>
+Description: XSD Schema Diff Tool (GUI)
+ A Swing-based tool for comparing XML XSD schemas and generating reports.

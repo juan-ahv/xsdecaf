@@ -387,6 +387,8 @@ public class XsDiffGUI extends JFrame {
     public static void main(String[] args) {
         // Set system properties for better Linux icon support
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+            // Hint the WM_CLASS so docks can associate a .desktop entry
+            System.setProperty("sun.awt.X11.XWMClass", "xsdecaf");
             System.setProperty("awt.useSystemAAFontSettings", "on");
             System.setProperty("swing.aatext", "true");
         }

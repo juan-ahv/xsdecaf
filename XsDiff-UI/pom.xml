@@ -77,6 +77,71 @@
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
       </plugin>
+      
+      <!-- Build Debian package: outputs to deployment/ after package phase -->
+      <plugin>
+        <groupId>org.vafer</groupId>
+        <artifactId>jdeb</artifactId>
+        <version>1.10</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <deb>${project.basedir}/deployment/xsdecaf_${project.version}_all.deb</deb>
+              <!-- Use control files from src/deb/control -->
+              <controlDir>${project.basedir}/src/deb/control</controlDir>
+              <dataSet>
+                <!-- Install the fat jar to /opt/xsdecaf/xsdecaf-ui.jar -->
+                <data>
+                  <type>file</type>
+                  <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                  <dst>/opt/xsdecaf/xsdecaf-ui.jar</dst>
+                  <mapper>
+                    <type>perm</type>
+                    <filemode>0644</filemode>
+                  </mapper>
+                </data>
+
+                <!-- Launcher script to /usr/bin/xsdecaf -->
+                <data>
+                  <type>file</type>
+                  <src>${project.basedir}/src/deb/usr/bin/xsdecaf</src>
+                  <dst>/usr/bin/xsdecaf</dst>
+                  <mapper>
+                    <type>perm</type>
+                    <filemode>0755</filemode>
+                  </mapper>
+                </data>
+
+                <!-- Desktop entry -->
+                <data>
+                  <type>file</type>
+                  <src>${project.basedir}/src/deb/usr/share/applications/xsdecaf.desktop</src>
+                  <dst>/usr/share/applications/xsdecaf.desktop</dst>
+                  <mapper>
+                    <type>perm</type>
+                    <filemode>0644</filemode>
+                  </mapper>
+                </data>
+
+                <!-- Icon (use the app resource icon.png) -->
+                <data>
+                  <type>file</type>
+                  <src>${project.basedir}/src/main/resources/icon.png</src>
+                  <dst>/usr/share/icons/hicolor/256x256/apps/xsdecaf.png</dst>
+                  <mapper>
+                    <type>perm</type>
+                    <filemode>0644</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>

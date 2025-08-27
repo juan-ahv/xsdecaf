@@ -94,7 +94,18 @@
               <!-- Use control files from src/deb/control -->
               <controlDir>${project.basedir}/src/deb/control</controlDir>
               <dataSet>
-                <!-- Install the fat jar to /opt/xsdecaf/xsdecaf-ui.jar -->
+                <!-- Install the jar to /opt/xsdecaf; prefer stable name xsdecaf-ui.jar if present, else versioned -->
+                <data>
+                  <type>file</type>
+                  <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                  <dst>/opt/xsdecaf/xsdiff-ui-${project.version}.jar</dst>
+                  <mapper>
+                    <type>perm</type>
+                    <filemode>0644</filemode>
+                  </mapper>
+                </data>
+
+                <!-- Also copy as stable name for launcher compatibility -->
                 <data>
                   <type>file</type>
                   <src>${project.build.directory}/${project.build.finalName}.jar</src>

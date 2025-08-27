@@ -501,6 +501,121 @@ public class SchemaAnalyzer {
             }
             typeInfo.addElement(extensionDesc);
         }
+        
+        // Find all simpleType elements within this complex type (both xs: and xsd: prefixes)
+        NodeList simpleTypes = complexTypeElement.getElementsByTagName("xs:simpleType");
+        NodeList simpleTypesXsd = complexTypeElement.getElementsByTagName("xsd:simpleType");
+        
+        // Process xs:simpleType elements
+        for (int i = 0; i < simpleTypes.getLength(); i++) {
+            Element simpleType = (Element) simpleTypes.item(i);
+            String name = simpleType.getAttribute("name");
+            String simpleTypeDesc = "simpleType";
+            if (name != null && !name.isEmpty()) {
+                simpleTypeDesc += " name='" + name + "'";
+            }
+            typeInfo.addElement(simpleTypeDesc);
+            
+            // Analyze the simple type content (restrictions, enumerations, etc.)
+            analyzeSimpleType(simpleType, typeInfo);
+        }
+        
+        // Process xsd:simpleType elements
+        for (int i = 0; i < simpleTypesXsd.getLength(); i++) {
+            Element simpleType = (Element) simpleTypesXsd.item(i);
+            String name = simpleType.getAttribute("name");
+            String simpleTypeDesc = "simpleType";
+            if (name != null && !name.isEmpty()) {
+                simpleTypeDesc += " name='" + name + "'";
+            }
+            typeInfo.addElement(simpleTypeDesc);
+            
+            // Analyze the simple type content (restrictions, enumerations, etc.)
+            analyzeSimpleType(simpleType, typeInfo);
+        }
+    }
+    
+    /**
+     * Analyze a simple type element and extract its elements and attributes
+     */
+    private void analyzeSimpleType(Element simpleTypeElement, ComplexTypeInfo typeInfo) {
+        // Find all restriction elements within this simple type (both xs: and xsd: prefixes)
+        NodeList restrictions = simpleTypeElement.getElementsByTagName("xs:restriction");
+        NodeList restrictionsXsd = simpleTypeElement.getElementsByTagName("xsd:restriction");
+        
+        // Process xs:restriction elements
+        for (int i = 0; i < restrictions.getLength(); i++) {
+            Element restriction = (Element) restrictions.item(i);
+            String base = restriction.getAttribute("base");
+            String restrictionDesc = "restriction";
+            if (base != null && !base.isEmpty()) {
+                restrictionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(restrictionDesc);
+        }
+        
+        // Process xsd:restriction elements
+        for (int i = 0; i < restrictionsXsd.getLength(); i++) {
+            Element restriction = (Element) restrictionsXsd.item(i);
+            String base = restriction.getAttribute("base");
+            String restrictionDesc = "restriction";
+            if (base != null && !base.isEmpty()) {
+                restrictionDesc += " base='" + base + "'";
+            }
+            typeInfo.addElement(restrictionDesc);
+        }
+        
+        // Find all documentation elements within this simple type (both xs: and xsd: prefixes)
+        NodeList documentations = simpleTypeElement.getElementsByTagName("xs:documentation");
+        NodeList documentationsXsd = simpleTypeElement.getElementsByTagName("xsd:documentation");
+        
+        // Process xs:documentation elements
+        for (int i = 0; i < documentations.getLength(); i++) {
+            Element documentation = (Element) documentations.item(i);
+            String source = documentation.getAttribute("source");
+            String documentationDesc = "documentation";
+            if (source != null && !source.isEmpty()) {
+                documentationDesc += " source='" + source + "'";
+            }
+            typeInfo.addAnnotation(documentationDesc);
+        }
+        
+        // Process xsd:documentation elements
+        for (int i = 0; i < documentationsXsd.getLength(); i++) {
+            Element documentation = (Element) documentationsXsd.item(i);
+            String source = documentation.getAttribute("source");
+            String documentationDesc = "documentation";
+            if (source != null && !source.isEmpty()) {
+                documentationDesc += " source='" + source + "'";
+            }
+            typeInfo.addAnnotation(documentationDesc);
+        }
+        
+        // Find all enumeration elements within this simple type (both xs: and xsd: prefixes)
+        NodeList enumerations = simpleTypeElement.getElementsByTagName("xs:enumeration");
+        NodeList enumerationsXsd = simpleTypeElement.getElementsByTagName("xsd:enumeration");
+        
+        // Process xs:enumeration elements
+        for (int i = 0; i < enumerations.getLength(); i++) {
+            Element enumeration = (Element) enumerations.item(i);
+            String value = enumeration.getAttribute("value");
+            String enumerationDesc = "enumeration";
+            if (value != null && !value.isEmpty()) {
+                enumerationDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(enumerationDesc);
+        }
+        
+        // Process xsd:enumeration elements
+        for (int i = 0; i < enumerationsXsd.getLength(); i++) {
+            Element enumeration = (Element) enumerationsXsd.item(i);
+            String value = enumeration.getAttribute("value");
+            String enumerationDesc = "enumeration";
+            if (value != null && !value.isEmpty()) {
+                enumerationDesc += " value='" + value + "'";
+            }
+            typeInfo.addElement(enumerationDesc);
+        }
     }
     
     /**

@@ -3,9 +3,11 @@ Type=Application
 Name=xsdecaf
 Comment=XSD Schema Diff Tool
 Exec=/usr/bin/env java -Dsun.awt.X11.XWMClass=xsdecaf -jar /opt/xsdecaf/xsdecaf-ui.jar
-TryExec=/usr/bin/env
+TryExec=java
+Path=/opt/xsdecaf
 Icon=xsdecaf
 Terminal=false
 Categories=Development;Utility;
 StartupWMClass=xsdecaf
+StartupNotify=true
 

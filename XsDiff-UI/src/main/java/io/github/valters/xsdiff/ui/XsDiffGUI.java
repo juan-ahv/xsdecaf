@@ -389,6 +389,9 @@ public class XsDiffGUI extends JFrame {
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             // Hint the WM_CLASS so docks can associate a .desktop entry
             System.setProperty("sun.awt.X11.XWMClass", "xsdecaf");
+            // Also set alternative AWT class name properties used by some JDK/toolkits
+            System.setProperty("awtAppClassName", "xsdecaf");
+            System.setProperty("sun.awt.X11.AWTAppClassName", "xsdecaf");
             System.setProperty("awt.useSystemAAFontSettings", "on");
             System.setProperty("swing.aatext", "true");
         }

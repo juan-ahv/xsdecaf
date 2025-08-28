@@ -34,6 +34,5 @@ if [ ! -r "$JAR" ]; then
   exit 1
 fi
 
-exec java -Dsun.awt.X11.XWMClass=xsdecaf -jar "$JAR" "$@" >> "$LOG_FILE" 2>&1 &
-disown
+exec java -Dsun.awt.X11.XWMClass=xsdecaf -jar "$JAR" "$@" >> "$LOG_FILE" 2>&1
 
